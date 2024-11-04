@@ -1,20 +1,118 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Image, View, Text, StyleSheet } from 'react-native';
 
-export default function App() {
+// Import screens
+import GetStartedScreen from './screens/GetStartedScreen';
+import LoginScreen from './screens/LoginScreen';
+import HomeScreen from './screens/HomeScreen';
+import ShopScreen from './screens/ShopScreen';
+import OrderScreen from './screens/OrderScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import CreateAccountScreen from './screens/CreateAccountScreen'; // Import CreateAccountScreen
+
+// Custom header component
+const Header = () => (
+  <View style={styles.headerContainer}>
+    <Image
+      source={require('./assets/logo.jpg')}
+      style={styles.headerImage} // Circular image with borderRadius
+    />
+    <Text style={styles.headerText}>Colegio de Montalban</Text>
+  </View>
+);
+
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  headerImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10, // Space between image and text
+  },
+  headerText: {
+    color: '#ffffff', // White text color
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
+
+// Bottom Tab Navigator containing Home, Shop, Order, and Profile screens
+function MainTabNavigator() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Shop') {
+            iconName = focused ? 'cart' : 'cart-outline';
+          } else if (route.name === 'Order') {
+            iconName = focused ? 'clipboard' : 'clipboard-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#ffffff',
+        tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          backgroundColor: '#004d00', // Dark green color for the bottom tab navigator
+        },
+        headerStyle: {
+          backgroundColor: '#004d00', // Dark green color for header
+        },
+        headerTitle: () => <Header />,
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Shop" component={ShopScreen} />
+      <Tab.Screen name="Order" component={OrderScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+// Stack Navigator containing GetStarted, Login, CreateAccount, and the MainTabNavigator
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="GetStarted">
+        <Stack.Screen
+          name="GetStarted"
+          component={GetStartedScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="CreateAccount"
+          component={CreateAccountScreen} // Add the CreateAccountScreen here
+          options={{ title: 'Create Account', headerShown: false }} // Optional: Customize header title
+        />
+        <Stack.Screen
+          name="Main"
+          component={MainTabNavigator}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
