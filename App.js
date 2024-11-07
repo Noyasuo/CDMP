@@ -14,6 +14,7 @@ import OrderScreen from './screens/OrderScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import CreateAccountScreen from './screens/CreateAccountScreen';
 import ProductScreen from './screens/ProductScreen'; // Import ProductScreen
+import { CartProvider } from './screens/CartContext';
 
 // Custom header component
 const Header = () => (
@@ -92,6 +93,7 @@ function MainTabNavigator() {
 export default function App() {
   return (
     <NavigationContainer>
+      <CartProvider>
       <Stack.Navigator initialRouteName="GetStarted">
         <Stack.Screen
           name="GetStarted"
@@ -119,6 +121,7 @@ export default function App() {
           options={{ title: 'Product Details' }}
         />
       </Stack.Navigator>
+      </CartProvider>
     </NavigationContainer>
   );
 }

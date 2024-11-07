@@ -1,33 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { Picker } from '@react-native-picker/picker'; // Import Picker
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 
-const CreateAccountScreen = ({ navigation }) => {
+const CreateAccountScreen = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [contactNumber, setContactNumber] = useState('');
     const [idNumber, setIdNumber] = useState('');
-    const [position, setPosition] = useState(''); // State for position
+    const [position, setPosition] = useState('');
     const [address, setAddress] = useState('');
 
     const handleCreateAccount = () => {
+        // Add your account creation logic here
         if (username && email && password && contactNumber && idNumber && position && address) {
-            if (password !== confirmPassword) {
-                Alert.alert("Error", "Passwords do not match.");
-                return;
-            }
-
-            Alert.alert("Account Created!", `Welcome, ${username}!`, [
-                {
-                    text: "OK", 
-                    onPress: () => {
-                        // After successful account creation, navigate to login screen
-                        navigation.navigate('Login');
-                    }
-                }
-            ]);
+            Alert.alert("Account Created!", `Welcome, ${username}!`);
             // You can add your API call here to create the account
         } else {
             Alert.alert("Error", "Please fill in all fields.");
@@ -42,7 +28,7 @@ const CreateAccountScreen = ({ navigation }) => {
                 placeholder="Username"
                 value={username}
                 onChangeText={setUsername}
-                placeholderTextColor="black"
+                placeholderTextColor="black" // Placeholder color
             />
             <TextInput
                 style={styles.input}
@@ -50,7 +36,7 @@ const CreateAccountScreen = ({ navigation }) => {
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
-                placeholderTextColor="black"
+                placeholderTextColor="black" // Placeholder color
             />
             <TextInput
                 style={styles.input}
@@ -58,15 +44,7 @@ const CreateAccountScreen = ({ navigation }) => {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                placeholderTextColor="black"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-                placeholderTextColor="black"
+                placeholderTextColor="black" // Placeholder color
             />
             <TextInput
                 style={styles.input}
@@ -74,36 +52,30 @@ const CreateAccountScreen = ({ navigation }) => {
                 value={contactNumber}
                 onChangeText={setContactNumber}
                 keyboardType="phone-pad"
-                placeholderTextColor="black"
+                placeholderTextColor="black" // Placeholder color
             />
             <TextInput
                 style={styles.input}
                 placeholder="ID Number"
                 value={idNumber}
                 onChangeText={setIdNumber}
-                placeholderTextColor="black"
+                placeholderTextColor="black" // Placeholder color
             />
-            
-            <Picker
-                selectedValue={position}
-                onValueChange={(itemValue) => setPosition(itemValue)}
-                style={styles.picker} // Add custom styling to Picker
-            >
-                <Picker.Item label="Select Position" value="" />
-                <Picker.Item label="Head" value="Head" />
-                <Picker.Item label="Dean" value="Dean" />
-            </Picker>
+            <TextInput
+                style={styles.input}
+                placeholder="Position"
+                value={position}
+                onChangeText={setPosition}
+                placeholderTextColor="black" // Placeholder color
+            />
             <TextInput
                 style={styles.input}
                 placeholder="Address"
                 value={address}
                 onChangeText={setAddress}
-                placeholderTextColor="black"
+                placeholderTextColor="black" // Placeholder color
             />
-            
-            <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
-                <Text style={styles.buttonText}>Create Account</Text>
-            </TouchableOpacity>
+            <Button title="Create Account" onPress={handleCreateAccount} />
         </View>
     );
 };
@@ -113,13 +85,13 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         padding: 16,
-        backgroundColor: '#004d00',
+        backgroundColor: '#004d00', // Set background color to dark green
     },
     title: {
         fontSize: 24,
         marginBottom: 24,
         textAlign: 'center',
-        color: '#ffffff',
+        color: '#ffffff', // Title text color
     },
     input: {
         height: 40,
@@ -127,31 +99,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginBottom: 12,
         paddingHorizontal: 10,
-        backgroundColor: 'white',
-    },
-    label: {
-        fontSize: 16,
-        color: 'white',
-        marginBottom: 8,
-    },
-    picker: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginBottom: 12,
-        backgroundColor: 'white',
-    },
-    button: {
-        width: '100%',
-        height: 40,
-        backgroundColor: '#FFFF00', // Yellow background for the button
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 0,
-    },
-    buttonText: {
-        color: '#000000', // Black text color
-        fontSize: 18,
+        borderRadius: 20,
+        backgroundColor: 'white', // Set input background color to white
     },
 });
 

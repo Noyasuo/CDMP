@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, Modal, Button } from 'react-native';
+import { useCart } from './CartContext'; // Import the useCart hook
 
 const products = Array.from({ length: 9 }).map((_, index) => ({
   id: index.toString(),
@@ -8,10 +9,11 @@ const products = Array.from({ length: 9 }).map((_, index) => ({
   image: 'https://via.placeholder.com/150',
 }));
 
-const ProductScreen = () => {
+const ProductScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart(); // Access addToCart from CartContext
 
   const openModal = (product) => {
     setSelectedProduct(product);
@@ -28,9 +30,8 @@ const ProductScreen = () => {
     if (quantity > 1) setQuantity(quantity - 1);
   };
 
-  const addToCart = () => {
-    // Add logic for adding to cart here
-    console.log(`Added ${quantity} of ${selectedProduct.name} to cart`);
+  const handleAddToCart = () => {
+    addToCart(selectedProduct, quantity);
     closeModal();
   };
 
@@ -74,7 +75,7 @@ const ProductScreen = () => {
                 </View>
 
                 {/* Add to Cart Button */}
-                <Button title="Add to Cart" onPress={addToCart} />
+                <Button title="Add to Cart" onPress={handleAddToCart} />
                 <Button title="Close" onPress={closeModal} color="red" />
               </>
             )}
