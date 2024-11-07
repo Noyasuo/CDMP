@@ -12,7 +12,8 @@ import HomeScreen from './screens/HomeScreen';
 import ShopScreen from './screens/ShopScreen';
 import OrderScreen from './screens/OrderScreen';
 import ProfileScreen from './screens/ProfileScreen';
-import CreateAccountScreen from './screens/CreateAccountScreen'; // Import CreateAccountScreen
+import CreateAccountScreen from './screens/CreateAccountScreen';
+import ProductScreen from './screens/ProductScreen'; // Import ProductScreen
 
 // Custom header component
 const Header = () => (
@@ -39,10 +40,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    marginRight: 10, // Space between image and text
+    marginRight: 10,
   },
   headerText: {
-    color: '#ffffff', // White text color
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -71,10 +72,10 @@ function MainTabNavigator() {
         tabBarActiveTintColor: '#ffffff',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          backgroundColor: '#004d00', // Dark green color for the bottom tab navigator
+          backgroundColor: '#004d00',
         },
         headerStyle: {
-          backgroundColor: '#004d00', // Dark green color for header
+          backgroundColor: '#004d00',
         },
         headerTitle: () => <Header />,
       })}
@@ -87,7 +88,7 @@ function MainTabNavigator() {
   );
 }
 
-// Stack Navigator containing GetStarted, Login, CreateAccount, and the MainTabNavigator
+// Stack Navigator containing GetStarted, Login, CreateAccount, Product, and MainTabNavigator
 export default function App() {
   return (
     <NavigationContainer>
@@ -104,13 +105,18 @@ export default function App() {
         />
         <Stack.Screen
           name="CreateAccount"
-          component={CreateAccountScreen} // Add the CreateAccountScreen here
-          options={{ title: 'Create Account', headerShown: false }} // Optional: Customize header title
+          component={CreateAccountScreen}
+          options={{ title: 'Create Account', headerShown: false }}
         />
         <Stack.Screen
           name="Main"
           component={MainTabNavigator}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Product"
+          component={ProductScreen}
+          options={{ title: 'Product Details' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
