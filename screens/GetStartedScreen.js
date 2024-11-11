@@ -1,18 +1,76 @@
-// screens/GetStartedScreen.js
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, Alert } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';  // Import LinearGradient
 
 const GetStartedScreen = ({ navigation }) => {
+  const [isModalVisible, setIsModalVisible] = useState(false); // State to track modal visibility
+  const [hasAgreed, setHasAgreed] = useState(false); // State to track user agreement
+
+  // Function to handle navigation if the user has agreed
+  const handleNavigation = () => {
+    if (hasAgreed) {
+      navigation.navigate('Login');
+    } else {
+      Alert.alert('Agreement Required', 'You must agree to the terms to proceed.');
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/logo.jpg')} style={styles.logo} />
-      <Text style={styles.title}>Procurement Management Mobile</Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('Login')}
+      <LinearGradient
+        colors={['#32CD32', '#006400']}
+        style={styles.gradient}
       >
-        <Text style={styles.buttonText}>Get Started</Text>
-      </TouchableOpacity>
+        <View style={styles.innerContainer}>
+          <Text style={styles.title}>Colegio De Montalbounce</Text>
+          <Image source={require('./logo/logo.png')} style={styles.logo} />
+          
+          <TouchableOpacity style={styles.agreeButton} onPress={() => setIsModalVisible(true)}>
+            <Text style={styles.agreeButtonText}>View User Agreement</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navigationButton} onPress={handleNavigation}>
+            <Text style={styles.navigationButtonText}>Continue</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.agreementTitle}>User Agreement</Text>
+            <Text style={styles.agreementText}>
+              -Don't Use Drugs.{"\n"}
+              - This Application is for Instructors only.{"\n"}
+              - This Application takes a simple user data.{"\n"}
+              - Ensure correct order information.{"\n"}
+              - Contact support for assistance with any issues.{"\n"}
+            </Text>
+            <Text style={styles.agreementConfirm}>
+              By using this app and making a reservation, you agree to these terms.
+            </Text>
+            <TouchableOpacity
+              style={styles.agreeButton}
+              onPress={() => {
+                setHasAgreed(true);
+                setIsModalVisible(false);
+              }}
+            >
+              <Text style={styles.agreeButtonText}>Agree</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setIsModalVisible(false)}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -22,31 +80,93 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#004d00', // Dark green color
   },
-  logo: {
-    width: 200, // Adjust width as needed
-    height: 200, // Adjust height as needed
-    borderRadius: 100, // Half of the width and height to make it a circle
-    marginBottom: 20, // Space between image and text
+  gradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    width:'100%',
+  },
+  innerContainer: {
+    alignItems: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
-    color: '#ffffff', // White color for better visibility on dark background
-    marginBottom: 10, // Space between text and button
+    marginBottom: 20,
+    fontStyle: 'italic',
+    color: '#fff',  
   },
-  button: {
-    backgroundColor: '#FFFF00', // Yellow background color
-    paddingVertical: 15,
-    paddingHorizontal: 25,
-    borderRadius: 15, // Rounded corners for the button
-    marginTop: 80, // Adds space above the button to move it down
+  logo: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
   },
-  buttonText: {
-    color: '#000000', // Black text color for contrast
+  agreeButton: {
+    marginTop: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    backgroundColor: '#4CAF50',
+  },
+  navigationButton: {
+    marginTop: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    backgroundColor: '#1C2841',
+  },
+  navigationButtonText: {
     fontSize: 16,
+    color: '#fff',
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  agreementTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  agreementText: {
+    fontSize: 14,
+    marginBottom: 10,
+    lineHeight: 20,
+  },
+  agreementConfirm: {
+    fontSize: 14,
+    marginBottom: 20,
+    fontWeight: 'bold',
+    padding:20,
+  },
+  cancelButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    backgroundColor: '#FF6347',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  agreeButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center'
   },
 });
 

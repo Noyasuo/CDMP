@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ProductScreen from './ProductScreen'; // Import ProductScreen
 
 const HomeScreen = () => {
+  const [searchQuery, setSearchQuery] = useState(''); // State for the search query
+
+  // Handle change in search input
+  const handleSearchChange = (text) => {
+    setSearchQuery(text);
+  };
+
   return (
     <View style={styles.container}>
       {/* Search Bar */}
@@ -12,12 +19,14 @@ const HomeScreen = () => {
           style={styles.searchInput}
           placeholder="Search..."
           placeholderTextColor="#888"
+          value={searchQuery}
+          onChangeText={handleSearchChange} // Update search query on text change
         />
         <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
       </View>
 
-      {/* Display Product Screen Card */}
-      <ProductScreen />
+      {/* Pass the search query to ProductScreen */}
+      <ProductScreen searchQuery={searchQuery} />
     </View>
   );
 };

@@ -1,19 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, Modal, Button } from 'react-native';
+import axios from 'axios'; 
 import { useCart } from './CartContext'; // Import the useCart hook
-
-const products = Array.from({ length: 9 }).map((_, index) => ({
-  id: index.toString(),
-  name: `Product ${index + 1}`,
-  price: `$${(index + 1) * 10}.00`,
-  image: 'https://via.placeholder.com/150',
-}));
+import AsyncStorage from '@react-native-async-storage/async-storage'; // For storing token
 
 const ProductScreen = ({ navigation }) => {
+  const [products, setProducts] = useState([]); // State to store fetched products
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const { addToCart } = useCart(); // Access addToCart from CartContext
+  const { addToCart } = useCart(); // Access the addToCart function from context
+
+  useEffect(() => {
+    AsyncStorage.getItem('userToken').then(token => {
+      if (token) {
+        // Make API call with the token in Authorization header
+        axios.get('http://192.168.99.118:8000/api/products/', {
+          headers: {
+            Authorization: `Token ${token}`,
+          }
+        })
+          .then(response => {
+            setProducts(response.data);
+            console.log(response.data); // Update the state with the fetched products
+          })
+          .catch(error => {
+            console.error('Error fetching products:', error);
+          });
+      } else {
+        console.log('No token found');
+      }
+    });
+  }, []); // Empty dependency array to run this effect only once when the component mounts
 
   const openModal = (product) => {
     setSelectedProduct(product);
@@ -25,30 +43,71 @@ const ProductScreen = ({ navigation }) => {
     setModalVisible(false);
   };
 
-  const incrementQuantity = () => setQuantity(quantity + 1);
+  const incrementQuantity = () => {
+    if (quantity < selectedProduct.stock) {
+      setQuantity(quantity + 1);
+    }
+  };
+
   const decrementQuantity = () => {
-    if (quantity > 1) setQuantity(quantity - 1);
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
   };
 
   const handleAddToCart = () => {
-    addToCart(selectedProduct, quantity);
+    // Check if selectedProduct is valid
+    if (!selectedProduct || !selectedProduct.id) {
+      console.error('Selected product is undefined or invalid:', selectedProduct);
+      alert('Product is invalid or not selected');
+      return; // Exit if selectedProduct is invalid
+    }
+  
+    if (quantity > selectedProduct.stock) {
+      alert('Not enough stock available');
+      return;
+    }
+  
+    // Add selected product with quantity to the cart
+    addToCart({ ...selectedProduct, quantity });
+  
+    // Decrement the stock locally after adding to the cart
+    const updatedProducts = products.map(product => 
+      product.id === selectedProduct.id
+        ? { ...product, stock: product.stock - quantity }
+        : product
+    );
+    setProducts(updatedProducts); // Update local state with new stock values
+  
     closeModal();
   };
+  
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => openModal(item)} style={styles.card}>
-      <Image source={{ uri: item.image }} style={styles.productImage} />
-      <Text style={styles.productName}>{item.name}</Text>
-      <Text style={styles.productPrice}>{item.price}</Text>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    // Ensure price is a valid number before calling .toFixed
+    const price = item.price && !isNaN(item.price) ? parseFloat(item.price) : 0; // Default to 0 if price is invalid
+
+    return (
+      <TouchableOpacity onPress={() => openModal(item)} style={styles.card}>
+        {/* Display product image or default image */}
+        <Image 
+          source={item.image ? { uri: item.image } : require('./logo/user.png')} // Use placeholder if image is null
+          style={styles.productImage} 
+        />
+        <Text style={styles.productName}>{item.title}</Text>
+        <Text style={styles.productPrice}>{`$${price.toFixed(2)}`}</Text>
+        <Text style={styles.productCategory}>{item.category.name}</Text>
+        <Text style={styles.productStock}>In Stock: {item.stock}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
       <FlatList
         data={products}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         numColumns={3}
         contentContainerStyle={styles.grid}
       />
@@ -59,9 +118,17 @@ const ProductScreen = ({ navigation }) => {
           <View style={styles.modalContent}>
             {selectedProduct && (
               <>
-                <Image source={{ uri: selectedProduct.image }} style={styles.modalImage} />
-                <Text style={styles.modalProductName}>{selectedProduct.name}</Text>
-                <Text style={styles.modalProductPrice}>{selectedProduct.price}</Text>
+                <Image 
+                  source={selectedProduct.image ? { uri: selectedProduct.image } : require('./logo/user.png')} 
+                  style={styles.modalImage} 
+                />
+                <Text style={styles.modalProductName}>{selectedProduct.title}</Text>
+                {/* Safely handle price */}
+                <Text style={styles.modalProductPrice}>{`$${(selectedProduct.price && !isNaN(selectedProduct.price) ? parseFloat(selectedProduct.price) : 0).toFixed(2)}`}</Text>
+                
+                {/* Add Stock and Category */}
+                <Text style={styles.modalProductCategory}>Category: {selectedProduct.category.name}</Text>
+                <Text style={styles.modalProductStock}>Stock: {selectedProduct.stock}</Text>
 
                 {/* Quantity Selector */}
                 <View style={styles.quantityContainer}>
@@ -123,6 +190,16 @@ const styles = StyleSheet.create({
     color: '#888',
     textAlign: 'center',
   },
+  productCategory: {
+    fontSize: 12,
+    color: '#555',
+    textAlign: 'center',
+  },
+  productStock: {
+    fontSize: 12,
+    color: '#555',
+    textAlign: 'center',
+  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -150,6 +227,16 @@ const styles = StyleSheet.create({
   modalProductPrice: {
     fontSize: 18,
     color: '#888',
+    marginBottom: 10,
+  },
+  modalProductCategory: {
+    fontSize: 14,
+    color: '#444',
+    marginBottom: 5,
+  },
+  modalProductStock: {
+    fontSize: 14,
+    color: '#444',
     marginBottom: 20,
   },
   quantityContainer: {

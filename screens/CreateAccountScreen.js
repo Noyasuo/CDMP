@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { Picker } from '@react-native-picker/picker'; // Import Picker component for dropdown
 
 const CreateAccountScreen = () => {
     const [username, setUsername] = useState('');
@@ -9,10 +10,17 @@ const CreateAccountScreen = () => {
     const [idNumber, setIdNumber] = useState('');
     const [position, setPosition] = useState('');
     const [address, setAddress] = useState('');
+    const [name, setName] = useState('');
 
     const handleCreateAccount = () => {
-        // Add your account creation logic here
-        if (username && email && password && contactNumber && idNumber && position && address) {
+        // Check if all fields are filled
+        if (username && email && password && contactNumber && idNumber && position && address && name) {
+            // Letters-only validation for Name field
+            if (!/^[A-Za-z\s]+$/.test(name)) { // Allows only letters and spaces
+                Alert.alert("Error", "Name should only contain letters.");
+                return;
+            }
+
             Alert.alert("Account Created!", `Welcome, ${username}!`);
             // You can add your API call here to create the account
         } else {
@@ -23,12 +31,22 @@ const CreateAccountScreen = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Create Account</Text>
+
+            {/* Name field with letters-only validation */}
+            <TextInput
+                style={styles.input}
+                placeholder="Full Name"
+                value={name}
+                onChangeText={setName}
+                placeholderTextColor="black"
+            />
+            
             <TextInput
                 style={styles.input}
                 placeholder="Username"
                 value={username}
                 onChangeText={setUsername}
-                placeholderTextColor="black" // Placeholder color
+                placeholderTextColor="black"
             />
             <TextInput
                 style={styles.input}
@@ -36,7 +54,7 @@ const CreateAccountScreen = () => {
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
-                placeholderTextColor="black" // Placeholder color
+                placeholderTextColor="black"
             />
             <TextInput
                 style={styles.input}
@@ -44,7 +62,7 @@ const CreateAccountScreen = () => {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                placeholderTextColor="black" // Placeholder color
+                placeholderTextColor="black"
             />
             <TextInput
                 style={styles.input}
@@ -52,29 +70,36 @@ const CreateAccountScreen = () => {
                 value={contactNumber}
                 onChangeText={setContactNumber}
                 keyboardType="phone-pad"
-                placeholderTextColor="black" // Placeholder color
+                placeholderTextColor="black"
             />
             <TextInput
                 style={styles.input}
                 placeholder="ID Number"
                 value={idNumber}
                 onChangeText={setIdNumber}
-                placeholderTextColor="black" // Placeholder color
+                placeholderTextColor="black"
             />
-            <TextInput
-                style={styles.input}
-                placeholder="Position"
-                value={position}
-                onChangeText={setPosition}
-                placeholderTextColor="black" // Placeholder color
-            />
+
+            {/* Position Dropdown (Picker) */}
+            <View style={styles.input}>
+                <Picker
+                    selectedValue={position}
+                    onValueChange={setPosition}
+                    style={{ height: 40, color: 'black' }}
+                >
+                    <Picker.Item label="Head" value="Head" />
+                    <Picker.Item label="Dean" value="Dean" />
+                </Picker>
+            </View>
+
             <TextInput
                 style={styles.input}
                 placeholder="Address"
                 value={address}
                 onChangeText={setAddress}
-                placeholderTextColor="black" // Placeholder color
+                placeholderTextColor="black"
             />
+
             <Button title="Create Account" onPress={handleCreateAccount} />
         </View>
     );
