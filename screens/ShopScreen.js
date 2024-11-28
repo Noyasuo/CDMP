@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Button, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import navigation hook
 import { useCart } from './CartContext'; // Import the cart context
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ShopScreen = () => {
-  const { cart, removeFromCart, removeAllFromCart, updateCartItemStock } = useCart();
+  const { cart, removeFromCart, updateCartItemStock } = useCart();
   const navigation = useNavigation(); // Initialize the navigation hook
+  const [loading, setLoading] = useState(false);
 
   // Calculate the total price for all items in the cart
   const calculateTotalPrice = () => {
@@ -16,69 +19,105 @@ const ShopScreen = () => {
     }, 0);
   };
 
-  // Handle checkout for a specific item
-  const handleCheckoutForItem = (item) => {
+  // Function to fetch the token from AsyncStorage
+  const getTokenFromStorage = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      return token;
+    } catch (error) {
+      console.error('Error fetching token:', error);
+      return null;
+    }
+  };
+
+  // Handle checkout for an individual item
+  const handleCheckoutForItem = async (item) => {
     if (!item || !item.id) {
       console.error('Invalid item:', item);
       return; // Exit if item is invalid
     }
-  
-    const itemTotalPrice = item.quantity * parseFloat(item.price.replace('$', ''));
+
+    const itemTotalPrice = item.quantity * parseFloat(item.price);
     console.log('Navigating to Order screen for item:', item);
+
+    // Navigate to Order screen and pass relevant data
     navigation.navigate('Order', {
       cartItems: [item],  // Pass the selected item in an array
-      totalPrice: itemTotalPrice,  // Pass the price for the selected item
+      totalPrice: itemTotalPrice,  // Pass the total price for the selected item
     });
-  
-    // Update stock for the item in cart
-    updateCartItemStock(item.id, item.quantity, item);  // Safe to use item.id now
-  
-    // Remove the item from the cart after checkout
+
+    // Update the stock for the item
+    updateCartItemStock(item.id, item.quantity);
     removeFromCart(item.id);
+
+    // Fetch the token from AsyncStorage
+    const token = await getTokenFromStorage();
+    if (!token) {
+      console.error('No token found in AsyncStorage');
+      return; // Exit if token is not found
+    }
+
+    // Prepare order data
+    const orderData = {
+      itemId: item.id,
+      quantity: item.quantity,
+      totalPrice: itemTotalPrice,
+      status: 'pending',  // Assuming you set an order status
+    };
+
+    // Send the PATCH request to update the order on the server
+    setLoading(true);
+    try {
+      const response = await axios.patch(`http://192.168.99.114:8000/api/order/${item.id}/`, orderData, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
+      console.log('Order patched successfully:', response.data);
+      console.log("Item ID for PATCH request:", item.id);
+      // Handle success response (e.g., show confirmation)
+    } catch (error) {
+      console.error('Error patching order:', error);
+      // Handle error (e.g., show an error message to the user)
+    } finally {
+      setLoading(false);
+    }
   };
-  
+
+  // Handle the "Proceed to Checkout" for the entire cart
   const handleProceedToCheckout = () => {
     if (cart.length === 0) {
       Alert.alert('Your cart is empty!', 'Please add items to your cart before proceeding.');
       return;
     }
-  
+
     const totalPrice = calculateTotalPrice();
     navigation.navigate('Order', {
       cartItems: cart,  // Pass all items in the cart
       totalPrice,  // Pass the total price for the cart
     });
-  
+
     // Update stock for each item in the cart (but **don't remove** items from cart)
-    cart.forEach((item, index) => {
-      if (item) {
-        console.log(`Item at index ${index}:`, item);  // Log the item before using it
-        if (item.id) {
-          updateCartItemStock(item.id, item.quantity, item);  // Safe to use item.id now
-        } else {
-          console.error(`Item at index ${index} is missing 'id':`, item);  // Log if id is missing
-        }
-      } else {
-        console.error(`Item at index ${index} is undefined:`, item);  // Log if the item is undefined
+    cart.forEach((item) => {
+      if (item && item.id) {
+        updateCartItemStock(item.id, item.quantity);  // Safe to use item.id now
       }
     });
-  
-    // **Don't remove all items from the cart** after proceeding to checkout
   };
-  
 
+  // Render cart items
   const renderItem = ({ item }) => {
     if (!item || !item.id) {
       console.error('Received an invalid item in renderItem:', item);
       return null; // Return null if item is invalid
     }
-  
+
     return (
       <View style={styles.cartItem}>
         <Text style={styles.cartItemName}>{item.title}</Text>
         <Text style={styles.cartItemQuantity}>Quantity: {item.quantity}</Text>
         <Text style={styles.cartItemPrice}>Price: ${parseFloat(item.price.replace('$', '')).toFixed(2)}</Text>
-  
+
         <View style={styles.bading}>
           <TouchableOpacity
             style={styles.removeButton}
@@ -86,7 +125,7 @@ const ShopScreen = () => {
           >
             <Text style={styles.removeButtonText}>Remove</Text>
           </TouchableOpacity>
-  
+
           <Button
             title="Checkout this item"
             onPress={() => handleCheckoutForItem(item)}  // Safe to pass item
@@ -95,13 +134,13 @@ const ShopScreen = () => {
       </View>
     );
   };
-  
+
   return (
     <View style={styles.container}>
       <FlatList
         data={cart}
         renderItem={renderItem}
-        keyExtractor={(item) => item?.id?.toString() || item?.title}  // Make sure item has a valid id
+        keyExtractor={(item) => item?.id?.toString() || item?.title}  // Ensure item has a valid id
       />
 
       <Text style={styles.totalAmount}>Total: ${calculateTotalPrice().toFixed(2)}</Text>

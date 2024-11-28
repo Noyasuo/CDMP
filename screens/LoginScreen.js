@@ -14,9 +14,9 @@ const LoginScreen = ({ navigation }) => {
       Alert.alert('All fields are required!', 'Please fill in all fields to continue.');
       return;
     }
-
+ 
     try {
-      const response = await fetch('http://192.168.99.118:8000/api/login/', {
+      const response = await fetch('http://192.168.100.10:800/api/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

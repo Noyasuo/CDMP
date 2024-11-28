@@ -4,8 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = ({ navigation, route }) => {
   const { user_type, name, teacherNo, contact, id, instructor } = route.params || {}; // Assuming you get `user_type` and other data from `route.params`
-
+  
   const [isModalVisible, setIsModalVisible] = useState(false); // State for the logout confirmation modal
+  const [storedUserData, setStoredUserData] = useState({});
 
   // Function to handle logout
   const handleLogout = () => {
@@ -30,6 +31,38 @@ const ProfileScreen = ({ navigation, route }) => {
     setIsModalVisible(false);
   };
 
+  // Save user data to AsyncStorage when the component mounts
+  useEffect(() => {
+    if (name && teacherNo && contact) {
+      const userData = {
+        name: name || 'N/A',
+        teacherNo: teacherNo || 'N/A',
+        contact: contact || 'N/A',
+        instructor: instructor || 'N/A',
+        userType: user_type || 'user',
+      };
+      // Store user data in AsyncStorage
+      AsyncStorage.setItem('userProfile', JSON.stringify(userData))
+        .then(() => {
+          console.log('User data stored in AsyncStorage');
+        })
+        .catch((error) => {
+          console.error('Error storing user data:', error);
+        });
+    }
+
+    // Retrieve user data from AsyncStorage when the component mounts
+    AsyncStorage.getItem('userProfile')
+      .then((storedData) => {
+        if (storedData) {
+          setStoredUserData(JSON.parse(storedData)); // Set state with stored data
+        }
+      })
+      .catch((error) => {
+        console.error('Error retrieving user data:', error);
+      });
+  }, [name, teacherNo, contact, instructor, user_type]);
+
   useEffect(() => {
     if (user_type === 'user') {
       // Handle any specific logic for users here if needed
@@ -52,30 +85,30 @@ const ProfileScreen = ({ navigation, route }) => {
         <View style={styles.infoContainer}>
           <Text style={styles.infoLabel}>Name</Text>
           <View style={styles.infoBox}>
-            <Text style={styles.infoText}>{name || 'N/A'}</Text>
+            <Text style={styles.infoText}>{storedUserData.name || 'N/A'}</Text>
           </View>
         </View>
 
         <View style={styles.infoContainer}>
           <Text style={styles.infoLabel}>Teacher No.</Text>
           <View style={styles.infoBox}>
-            <Text style={styles.infoText}>{teacherNo || 'N/A'}</Text>
+            <Text style={styles.infoText}>{storedUserData.teacherNo || 'N/A'}</Text>
           </View>
         </View>
 
         <View style={styles.infoContainer}>
           <Text style={styles.infoLabel}>Contact</Text>
           <View style={styles.infoBox}>
-            <Text style={styles.infoText}>{contact || 'N/A'}</Text>
+            <Text style={styles.infoText}>{storedUserData.contact || 'N/A'}</Text>
           </View>
         </View>
 
         {/* Show instructor info if user_type is 'instructor' */}
-        {user_type === 'instructor' && (
+        {storedUserData.userType === 'instructor' && (
           <View style={styles.infoContainer}>
             <Text style={styles.infoLabel}>Instructor</Text>
             <View style={styles.infoBox}>
-              <Text style={styles.infoText}>{instructor || 'N/A'}</Text>
+              <Text style={styles.infoText}>{storedUserData.instructor || 'N/A'}</Text>
             </View>
           </View>
         )}
