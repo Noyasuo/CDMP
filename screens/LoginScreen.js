@@ -5,24 +5,22 @@ import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    if (!email || !username || !password) {
+    if (!username || !password) {
       Alert.alert('All fields are required!', 'Please fill in all fields to continue.');
       return;
     }
  
     try {
-      const response = await fetch('http://192.168.100.10:800/api/login/', {
+      const response = await fetch('http://52.62.183.28/api/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email,
           username: username,
           password: password,
         }),
@@ -59,10 +57,6 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-  const handleEmailChange = (text) => {
-    setEmail(text);
-  };
-
   const handleUsernameChange = (text) => {
     setUsername(text);
   };
@@ -74,19 +68,6 @@ const LoginScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Image source={require('./logo/logo.png')} style={styles.logo} />
-
-      {/* Email Input Field */}
-      <View style={styles.inputContainer}>
-        <Ionicons name="mail" size={20} color="#fff" style={styles.icon} />
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#ccc"
-          value={email}
-          onChangeText={handleEmailChange}
-          keyboardType="email-address"
-        />
-      </View>
 
       {/* Username Input Field */}
       <View style={styles.inputContainer}>

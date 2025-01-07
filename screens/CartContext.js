@@ -84,7 +84,7 @@ export const CartProvider = ({ children }) => {
   
       // Make the API request to update the product
       const response = await axios.put(
-        `http://192.168.99.118:8000/api/products/${productId}/`,
+        `http://192.168.5.124:8000/api/products/${productId}/`,
         formData,
         {
           headers: {

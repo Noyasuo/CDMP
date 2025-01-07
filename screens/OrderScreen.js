@@ -53,7 +53,7 @@ const OrderScreen = ({ route }) => {
       console.log('Cart items:', cart);  // Log cart items to verify their structure
 
       // Send the POST request to create a new order
-      const response = await fetch('http://192.168.99.118:8000/api/orders/', {
+      const response = await fetch('http://192.168.0.108:8000/api/orders/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

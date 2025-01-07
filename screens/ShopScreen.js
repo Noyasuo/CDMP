@@ -68,7 +68,7 @@ const ShopScreen = () => {
     // Send the PATCH request to update the order on the server
     setLoading(true);
     try {
-      const response = await axios.patch(`http://192.168.99.114:8000/api/order/${item.id}/`, orderData, {
+      const response = await axios.patch(`http://192.168.5.124:8000/api/order/${item.id}/`, orderData, {
         headers: {
           Authorization: `Token ${token}`,
         },

@@ -15,7 +15,7 @@ const ProductScreen = ({ navigation }) => {
     AsyncStorage.getItem('userToken').then(token => {
       if (token) {
         // Make API call with the token in Authorization header
-        axios.get('http://192.168.43.174:8000/api/products/', {
+        axios.get('http://52.62.183.28/api/products/', {
           headers: {
             Authorization: `Token ${token}`,
           }
