@@ -99,9 +99,9 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
-      {/* Register Button */}
-      <TouchableOpacity onPress={() => navigation.navigate('CreateAccount')}>
-        <Text style={styles.registerText}>Create Account</Text>
+      {/* Forgot Password Button */}
+      <TouchableOpacity style={styles.forgotPasswordButton} onPress={() => navigation.navigate('ForgotPassword')}>
+        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
       </TouchableOpacity>
     </View>
   );
@@ -154,10 +154,12 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 18,
   },
-  registerText: {
-    color: '#ffffff',
-    fontSize: 16,
+  forgotPasswordButton: {
     marginTop: 10,
+  },
+  forgotPasswordText: {
+    color: '#FFFF00',
+    fontSize: 16,
   },
 });
 

@@ -22,7 +22,7 @@ const GetStartedScreen = ({ navigation }) => {
         style={styles.gradient}
       >
         <View style={styles.innerContainer}>
-          <Text style={styles.title}>Colegio De Montalbounce</Text>
+          <Text style={styles.title}>Colegio De Montalban</Text>
           <Image source={require('./logo/logo.png')} style={styles.logo} />
           
           <TouchableOpacity style={styles.agreeButton} onPress={() => setIsModalVisible(true)}>
@@ -43,8 +43,8 @@ const GetStartedScreen = ({ navigation }) => {
           <View style={styles.modalContent}>
             <Text style={styles.agreementTitle}>User Agreement</Text>
             <Text style={styles.agreementText}>
-              -Don't Use Drugs.{"\n"}
-              - This Application is for Instructors only.{"\n"}
+              
+              - This Application is for head and dean only.{"\n"}
               - This Application takes a simple user data.{"\n"}
               - Ensure correct order information.{"\n"}
               - Contact support for assistance with any issues.{"\n"}

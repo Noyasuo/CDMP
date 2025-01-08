@@ -84,9 +84,6 @@ const ProductScreen = ({ navigation }) => {
   
 
   const renderItem = ({ item }) => {
-    // Ensure price is a valid number before calling .toFixed
-    const price = item.price && !isNaN(item.price) ? parseFloat(item.price) : 0; // Default to 0 if price is invalid
-
     return (
       <TouchableOpacity onPress={() => openModal(item)} style={styles.card}>
         {/* Display product image or default image */}
@@ -95,7 +92,6 @@ const ProductScreen = ({ navigation }) => {
           style={styles.productImage} 
         />
         <Text style={styles.productName}>{item.title}</Text>
-        <Text style={styles.productPrice}>{`$${price.toFixed(2)}`}</Text>
         <Text style={styles.productCategory}>{item.category.name}</Text>
         <Text style={styles.productStock}>In Stock: {item.stock}</Text>
       </TouchableOpacity>
@@ -123,8 +119,6 @@ const ProductScreen = ({ navigation }) => {
                   style={styles.modalImage} 
                 />
                 <Text style={styles.modalProductName}>{selectedProduct.title}</Text>
-                {/* Safely handle price */}
-                <Text style={styles.modalProductPrice}>{`$${(selectedProduct.price && !isNaN(selectedProduct.price) ? parseFloat(selectedProduct.price) : 0).toFixed(2)}`}</Text>
                 
                 {/* Add Stock and Category */}
                 <Text style={styles.modalProductCategory}>Category: {selectedProduct.category.name}</Text>
@@ -185,11 +179,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  productPrice: {
-    fontSize: 14,
-    color: '#888',
-    textAlign: 'center',
-  },
   productCategory: {
     fontSize: 12,
     color: '#555',
@@ -223,11 +212,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 5,
-  },
-  modalProductPrice: {
-    fontSize: 18,
-    color: '#888',
-    marginBottom: 10,
   },
   modalProductCategory: {
     fontSize: 14,
