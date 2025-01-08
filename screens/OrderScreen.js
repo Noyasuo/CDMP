@@ -1,28 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCart } from './CartContext';  // Import the useCart hook to access the cart
+import { useCart } from './CartContext';
 
 const OrderScreen = ({ route }) => {
-  const { cart, removeFromCart } = useCart();  // Access cart from context
-  const { totalPrice = 0, user } = route?.params || {};  // Destructure route params safely
-
+  const { cart, removeFromCart } = useCart();
+  const { totalPrice = 0 } = route?.params || {}; // Use default values to avoid undefined
   const [status, setStatus] = useState('PENDING');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [userToken, setUserToken] = useState(null);
-
-  // Log cart items to verify their structure
-  useEffect(() => {
-    console.log('Cart Items:', cart);
-  }, [cart]);
 
   // Fetch user token from AsyncStorage
   useEffect(() => {
     const fetchUserToken = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
-        setUserToken(token);
+        if (token) setUserToken(token);
+        else setError('User token is missing');
       } catch (err) {
         console.error('Failed to fetch user token:', err);
         setError('Unable to retrieve user token');
@@ -33,27 +28,33 @@ const OrderScreen = ({ route }) => {
   }, []);
 
   // Handle POST request to place the order
-  useEffect(() => {
-    if (cart.length > 0 && userToken) {
-      handlePostOrder();
-    }
-  }, [cart, userToken]);
-
   const handlePostOrder = async () => {
     setLoading(true);
-
+    setError(null); // Clear any previous error
+  
     if (!cart || cart.length === 0) {
-      console.error('Cart items are empty or undefined!');
-      setError('No items in cart');
+      setError('No items in the cart');
       setLoading(false);
       return;
     }
-
+  
+    // Ensure all cart items have a valid title
+    const products = cart.map(item => {
+      if (!item.title) {
+        console.error(`Missing title for product ID: ${item.id}`);
+        setError(`Missing title for product ID: ${item.id}`);
+        setLoading(false);
+        throw new Error(`Missing title for product ID: ${item.id}`);
+      }
+      return {
+        id: item.id,
+        title: item.title, // Ensure the title is present
+        quantity: item.quantity,
+      };
+    });
+  
     try {
-      console.log('Cart items:', cart);  // Log cart items to verify their structure
-
-      // Send the POST request to create a new order
-      const response = await fetch('http://192.168.0.108:8000/api/orders/', {
+      const response = await fetch('http://52.62.183.28/api/orders/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,25 +62,21 @@ const OrderScreen = ({ route }) => {
         },
         body: JSON.stringify({
           user: user.id,
-          products: cart.map(item => ({
-            id: item.id,
-            title: item.title || item.name || 'Unnamed product',
-            quantity: item.quantity,
-          })),
+          products,
           total_price: totalPrice,
           comments: 'Order placed through mobile app',
         }),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         setStatus('Order Placed');
         console.log('Order placed:', data);
-        await AsyncStorage.removeItem('cartItems');  // Optionally clear cart after order is placed
+        await AsyncStorage.removeItem('cartItems');
       } else {
         const errorData = await response.json();
         console.error('Error response:', errorData);
-        setError(errorData.message || 'An error occurred while placing the order');
+        setError(errorData.error || 'An error occurred while placing the order');
       }
     } catch (error) {
       console.error('Request failed:', error);
@@ -88,7 +85,7 @@ const OrderScreen = ({ route }) => {
       setLoading(false);
     }
   };
-
+  
   if (!cart.length) {
     return (
       <View style={styles.container}>

@@ -98,11 +98,6 @@ const LoginScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-
-      {/* Register Button */}
-      <TouchableOpacity onPress={() => navigation.navigate('CreateAccount')}>
-        <Text style={styles.registerText}>Create Account</Text>
-      </TouchableOpacity>
     </View>
   );
 };

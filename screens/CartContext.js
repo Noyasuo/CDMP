@@ -46,10 +46,10 @@ export const CartProvider = ({ children }) => {
   }, [cart]); // Depend on cart to save only when it changes
 
 
-  const updateCartItemStock = async (productId, quantity, item) => {
+  const updateCartItemStock = async (id, quantity, item) => {
     // Ensure 'item' and 'productId' are valid before proceeding
     if (!item || !item.id || !productId) {
-      console.error('Invalid item or productId:', item, productId);
+      console.error('Invalid item or productId:', item, id);
       return; // Exit if item or productId is invalid
     }
   
@@ -84,7 +84,7 @@ export const CartProvider = ({ children }) => {
   
       // Make the API request to update the product
       const response = await axios.put(
-        `http://192.168.5.124:8000/api/products/${productId}/`,
+        `http://192.168.5.124:8000/api/products/${id}/`,
         formData,
         {
           headers: {
