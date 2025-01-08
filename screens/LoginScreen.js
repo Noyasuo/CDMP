@@ -98,6 +98,14 @@ const LoginScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
+<<<<<<< HEAD
+=======
+
+      {/* Forgot Password Button */}
+      <TouchableOpacity style={styles.forgotPasswordButton} onPress={() => navigation.navigate('ForgotPassword')}>
+        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+      </TouchableOpacity>
+>>>>>>> 2fd77c4b91b029af034df73ff76035d15cfbe261
     </View>
   );
 };
@@ -149,10 +157,12 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 18,
   },
-  registerText: {
-    color: '#ffffff',
-    fontSize: 16,
+  forgotPasswordButton: {
     marginTop: 10,
+  },
+  forgotPasswordText: {
+    color: '#FFFF00',
+    fontSize: 16,
   },
 });
 

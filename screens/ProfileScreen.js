@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Button } from 'react-native';
+import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = ({ navigation, route }) => {
-  const { user_type, name, teacherNo, contact, id, instructor } = route.params || {}; // Assuming you get `user_type` and other data from `route.params`
+  const { user_type, id, instructor } = route.params || {}; // Assuming you get `user_type` and other data from `route.params`
   
   const [isModalVisible, setIsModalVisible] = useState(false); // State for the logout confirmation modal
   const [storedUserData, setStoredUserData] = useState({});
@@ -31,43 +32,43 @@ const ProfileScreen = ({ navigation, route }) => {
     setIsModalVisible(false);
   };
 
-  // Save user data to AsyncStorage when the component mounts
+  // Fetch user data from the API
   useEffect(() => {
-    if (name && teacherNo && contact) {
-      const userData = {
-        name: name || 'N/A',
-        teacherNo: teacherNo || 'N/A',
-        contact: contact || 'N/A',
-        instructor: instructor || 'N/A',
-        userType: user_type || 'user',
-      };
-      // Store user data in AsyncStorage
-      AsyncStorage.setItem('userProfile', JSON.stringify(userData))
-        .then(() => {
-          console.log('User data stored in AsyncStorage');
-        })
-        .catch((error) => {
-          console.error('Error storing user data:', error);
-        });
-    }
-
-    // Retrieve user data from AsyncStorage when the component mounts
-    AsyncStorage.getItem('userProfile')
-      .then((storedData) => {
-        if (storedData) {
-          setStoredUserData(JSON.parse(storedData)); // Set state with stored data
+    const fetchUserData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        if (token) {
+          const response = await axios.get('http://52.62.183.28/api/accounts/', {
+            headers: {
+              'Authorization': `Token ${token}`,
+            },
+          });
+          const userData = response.data;
+          setStoredUserData({
+            username: userData.username || 'N/A',
+            idNumber: userData.id_number || 'N/A',
+            contact: userData.mobile_number || 'N/A',
+            instructor: instructor || 'N/A',
+            userType: user_type || 'user',
+          });
+          // Store user data in AsyncStorage
+          await AsyncStorage.setItem('userProfile', JSON.stringify(userData));
+        } else {
+          console.log('No token found');
         }
-      })
-      .catch((error) => {
-        console.error('Error retrieving user data:', error);
-      });
-  }, [name, teacherNo, contact, instructor, user_type]);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
 
-  useEffect(() => {
-    if (user_type === 'user') {
-      // Handle any specific logic for users here if needed
-    }
-  }, [user_type]);
+    fetchUserData();
+  }, [user_type, id, instructor]);
+
+  // Function to handle password reset
+  const handleResetPassword = () => {
+    // Navigate to Reset Password screen
+    navigation.navigate('ResetPassword');
+  };
 
   return (
     <View style={styles.container}>
@@ -83,16 +84,16 @@ const ProfileScreen = ({ navigation, route }) => {
 
         {/* Information Fields */}
         <View style={styles.infoContainer}>
-          <Text style={styles.infoLabel}>Name</Text>
+          <Text style={styles.infoLabel}>Username</Text>
           <View style={styles.infoBox}>
-            <Text style={styles.infoText}>{storedUserData.name || 'N/A'}</Text>
+            <Text style={styles.infoText}>{storedUserData.username || 'N/A'}</Text>
           </View>
         </View>
 
         <View style={styles.infoContainer}>
-          <Text style={styles.infoLabel}>Teacher No.</Text>
+          <Text style={styles.infoLabel}>ID Number</Text>
           <View style={styles.infoBox}>
-            <Text style={styles.infoText}>{storedUserData.teacherNo || 'N/A'}</Text>
+            <Text style={styles.infoText}>{storedUserData.idNumber || 'N/A'}</Text>
           </View>
         </View>
 
@@ -112,6 +113,11 @@ const ProfileScreen = ({ navigation, route }) => {
             </View>
           </View>
         )}
+
+        {/* Reset Password Button */}
+        <TouchableOpacity style={styles.resetPasswordButton} onPress={handleResetPassword}>
+          <Text style={styles.buttonText}>Reset Password</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Logout Button */}
@@ -216,6 +222,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 50,
+  },
+  resetPasswordButton: {
+    backgroundColor: '#FF0000', // Red color for reset password button
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 50,
+    marginTop: 10, // Space between the info box and reset password button
   },
   historyButton: {
     position: 'absolute',

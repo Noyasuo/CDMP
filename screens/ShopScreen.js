@@ -60,8 +60,15 @@ const ShopScreen = () => {
 
     setLoading(true);
     try {
+<<<<<<< HEAD
       const response = await axios.post('http://52.62.183.28/api/orders/', orderData, {
         headers: { Authorization: `Token ${token}` },
+=======
+      const response = await axios.patch(`http://52.62.183.28/api/order/${item.id}/`, orderData, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+>>>>>>> 2fd77c4b91b029af034df73ff76035d15cfbe261
       });
       console.log('Order created successfully:', response.data);
 
