@@ -11,7 +11,7 @@ const LoginScreen = ({ navigation }) => {
     // Function to handle password reset
     const handleResetPassword = () => {
       // Navigate to Reset Password screen
-      navigation.navigate('ResetPassword');
+      navigation.navigate('forgot');
     };
 
   const handleLogin = async () => {
@@ -107,7 +107,7 @@ const LoginScreen = ({ navigation }) => {
 
       {/* Reset Password Button */}
               <TouchableOpacity style={styles.resetPasswordButton} onPress={handleResetPassword}>
-                <Text style={styles.buttonText}>Reset Password</Text>
+                <Text style={styles.buttonText}>Forgot Password</Text>
               </TouchableOpacity>
     </View>
 

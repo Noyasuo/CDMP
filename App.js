@@ -15,6 +15,8 @@ import ProfileScreen from './screens/ProfileScreen';
 import CreateAccountScreen from './screens/CreateAccountScreen';
 import ProductScreen from './screens/ProductScreen'; // Import ProductScreen
 import { CartProvider } from './screens/CartContext';
+import ForgotPassword from './screens/ForgotPaasword';
+import History from './screens/History';
 
 // Custom header component
 const Header = () => (
@@ -119,6 +121,15 @@ export default function App() {
           name="Product"
           component={ProductScreen}
           options={{ title: 'Product Details' }}
+        />
+        <Stack.Screen
+        name="forgot"
+        component={ForgotPassword}
+        options={{ title: 'Forgot Password' }}
+        />
+        <Stack.Screen
+        name="History"
+        component={History}
         />
       </Stack.Navigator>
       </CartProvider>

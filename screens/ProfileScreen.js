@@ -64,11 +64,7 @@ const ProfileScreen = ({ navigation, route }) => {
     fetchUserData();
   }, [user_type, id, instructor]);
 
-  // Function to handle password reset
-  const handleResetPassword = () => {
-    // Navigate to Reset Password screen
-    navigation.navigate('ResetPassword');
-  };
+
 
   return (
     <View style={styles.container}>
@@ -114,10 +110,7 @@ const ProfileScreen = ({ navigation, route }) => {
           </View>
         )}
 
-        {/* Reset Password Button */}
-        <TouchableOpacity style={styles.resetPasswordButton} onPress={handleResetPassword}>
-          <Text style={styles.buttonText}>Reset Password</Text>
-        </TouchableOpacity>
+        
       </View>
 
       {/* Logout Button */}

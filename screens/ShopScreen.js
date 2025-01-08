@@ -59,7 +59,6 @@ const handleCheckoutForItem = async (item) => {
 
     navigation.navigate('Order', {
       cartItems: [item],
-      totalPrice: parseFloat(item.price) * item.quantity,
     });
 
     updateCartItemStock(item.id, item.quantity);
@@ -131,9 +130,6 @@ const handleProceedToCheckout = async () => {
       <View style={styles.cartItem}>
         <Text style={styles.cartItemName}>{item.title || 'Unknown Item'}</Text>
         <Text style={styles.cartItemQuantity}>Quantity: {item.quantity || 0}</Text>
-        <Text style={styles.cartItemPrice}>
-          Price: ${parseFloat(item.price || 0).toFixed(2)}
-        </Text>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity

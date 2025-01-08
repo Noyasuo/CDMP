@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCart } from './CartContext';
 
-const OrderScreen = ({ route }) => {
-  const { cart, removeFromCart } = useCart();
-  const { totalPrice = 0 } = route?.params || {}; // Use default values to avoid undefined
-  const [status, setStatus] = useState('PENDING');
+const OrderScreen = () => {
+  const [approvedOrders, setApprovedOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [userToken, setUserToken] = useState(null);
@@ -27,96 +24,83 @@ const OrderScreen = ({ route }) => {
     fetchUserToken();
   }, []);
 
-  // Handle POST request to place the order
-  const handlePostOrder = async () => {
-    setLoading(true);
-    setError(null); // Clear any previous error
-  
-    if (!cart || cart.length === 0) {
-      setError('No items in the cart');
-      setLoading(false);
-      return;
-    }
-  
-    // Ensure all cart items have a valid title
-    const products = cart.map(item => {
-      if (!item.title) {
-        console.error(`Missing title for product ID: ${item.id}`);
-        setError(`Missing title for product ID: ${item.id}`);
+  // Fetch approved orders
+  useEffect(() => {
+    const fetchApprovedOrders = async () => {
+      if (!userToken) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch('http://52.62.183.28/api/orders/', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Token ${userToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const filteredOrders = data.filter(order => order.final_status === 'approved');
+          setApprovedOrders(filteredOrders);
+        } else {
+          const errorData = await response.json();
+          setError(errorData.error || 'Failed to fetch orders');
+        }
+      } catch (error) {
+        console.error('Request failed:', error);
+        setError('Unable to fetch approved orders');
+      } finally {
         setLoading(false);
-        throw new Error(`Missing title for product ID: ${item.id}`);
       }
-      return {
-        id: item.id,
-        title: item.title, // Ensure the title is present
-        quantity: item.quantity,
-      };
-    });
-  
-    try {
-      const response = await fetch('http://52.62.183.28/api/orders/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${userToken}`,
-        },
-        body: JSON.stringify({
-          user: user.id,
-          products,
-          total_price: totalPrice,
-          comments: 'Order placed through mobile app',
-        }),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        setStatus('Order Placed');
-        console.log('Order placed:', data);
-        await AsyncStorage.removeItem('cartItems');
-      } else {
-        const errorData = await response.json();
-        console.error('Error response:', errorData);
-        setError(errorData.error || 'An error occurred while placing the order');
-      }
-    } catch (error) {
-      console.error('Request failed:', error);
-      setError('Failed to place order');
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  if (!cart.length) {
+    };
+
+    fetchApprovedOrders();
+  }, [userToken]);
+
+  if (loading) {
     return (
       <View style={styles.container}>
-        <Text>No items in the order</Text>
+        <Text>Loading approved orders...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ color: 'red' }}>{error}</Text>
+      </View>
+    );
+  }
+
+  if (!approvedOrders.length) {
+    return (
+      <View style={styles.container}>
+        <Text>No approved orders found.</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.TORDER}>ORDER ITEMS</Text>
+      <Text style={styles.header}>Approved Orders</Text>
+      <ScrollView contentContainerStyle={styles.orderContainer}>
+        {approvedOrders.map((order, index) => (
+          <View key={order.id} style={styles.orderItem}>
+            <Text>Order ID: {order.id}</Text>
+            <Text>User: {order.user.username}</Text>
+            <Text>Products:</Text>
+            {order.product.map((product, idx) => (
+              <Text key={idx}>
+                - {product.title} (Quantity: {order.quantity})
+              </Text>
+            ))}
+            <Text>Status: {order.final_status}</Text>
 
-      <ScrollView contentContainerStyle={styles.productCon}>
-        {cart.map((item, index) => (
-          <View key={index} style={styles.productItem}>
-            <Text>Name: {item.title || 'Unnamed product'}</Text>
-            <Text>Quantity: {item.quantity}</Text>
-            <Text>Price: {item.price}</Text>
           </View>
         ))}
-
-        <Text style={styles.totalPrice}>Total Price: ${totalPrice}</Text>
-        <Text style={styles.status}>Status: {status}</Text>
-
-        {loading ? (
-          <Text>Placing order...</Text>
-        ) : (
-          <Button title="Place Order" onPress={handlePostOrder} />
-        )}
-
-        {error && <Text style={{ color: 'red' }}>{error}</Text>}
       </ScrollView>
     </View>
   );
@@ -125,43 +109,28 @@ const OrderScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
     padding: 16,
+    backgroundColor: '#f5f5f5',
   },
-  TORDER: {
-    position: 'absolute',
-    top: 40,
-    textAlign: 'center',
+  header: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
+    textAlign: 'center',
+    marginBottom: 20,
   },
-  productCon: {
-    margin: 8,
-    borderRadius: 10,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+  orderContainer: {
     padding: 10,
+  },
+  orderItem: {
+    marginBottom: 15,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 3 },
     elevation: 5,
-    marginTop: 80,
-    width: '100%',
-  },
-  productItem: {
-    marginVertical: 5,
-  },
-  totalPrice: {
-    marginTop: 20,
-    fontWeight: 'bold',
-  },
-  status: {
-    marginTop: 10,
-    color: 'green',
   },
 });
 
