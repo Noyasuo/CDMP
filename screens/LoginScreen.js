@@ -14,54 +14,64 @@ const LoginScreen = ({ navigation }) => {
       navigation.navigate('forgot');
     };
 
-  const handleLogin = async () => {
-    if (!username || !password) {
-      Alert.alert('All fields are required!', 'Please fill in all fields to continue.');
-      return;
-    }
- 
-    try {
-      const response = await fetch('http://52.62.183.28/api/login/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
-      });
-
-      // Check if the response status is OK
-      if (response.status === 200) {
-        const data = await response.json();
-        console.log(data); // For debugging purposes
-
-        // Check if the response has the necessary data (message, token)
-        if (data.token) {
-          // Assuming the backend sends back a 'message' and 'token'
-          Alert.alert('Login Successful', `Welcome back!`);
-
-          // Save the token in AsyncStorage
-          await AsyncStorage.setItem('userToken', data.token);
-
-          // Navigate to the Home screen
-          navigation.navigate('Main', {
-            screen: 'Home',
-            params: { name: username, token: data.token },
-          });
-        } else {
-          Alert.alert('Login Failed', data.message || 'Something went wrong');
-        }
-      } else {
-        // Handle non-200 status codes
-        const errorData = await response.json();
-        Alert.alert('Login Failed', errorData.message || 'Something went wrong');
+    const handleLogin = async () => {
+      if (!username || !password) {
+        Alert.alert('All fields are required!', 'Please fill in all fields to continue.');
+        return;
       }
-    } catch (error) {
-      Alert.alert('Error', 'There was an error connecting to the server');
-    }
-  };
+    
+      try {
+        const response = await fetch('http://52.62.183.28/api/login/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: username,
+            password: password,
+          }),
+        });
+    
+        // Check if the response status is OK
+        if (response.status === 200) {
+          const data = await response.json();
+          console.log(data); // For debugging purposes
+    
+          // Check if the response has the necessary data (message, token)
+          if (data.token) {
+            // Assuming the backend sends back a 'message' and 'token'
+            Alert.alert('Login Successful', `Welcome back!`);
+    
+            // Save the token, username, and user_type in AsyncStorage
+            await AsyncStorage.setItem('userToken', data.token);
+            await AsyncStorage.setItem('userName', username);
+            await AsyncStorage.setItem('user_type', data.user_type);  // Save user_type
+    
+            // Log the username and user_type after saving to AsyncStorage
+            const savedUsername = await AsyncStorage.getItem('userName');
+            const savedUserType = await AsyncStorage.getItem('user_type');  // Retrieve user_type
+            console.log('Saved username in AsyncStorage:', savedUsername);
+            console.log('Saved user_type in AsyncStorage:', savedUserType);
+    
+            // Navigate to the Home screen
+            navigation.navigate('Main', {
+              screen: 'Home',
+              params: { name: username, token: data.token },
+            });
+          } else {
+            Alert.alert('Login Failed', data.message || 'Something went wrong');
+          }
+        } else {
+          // Handle non-200 status codes
+          const errorData = await response.json();
+          Alert.alert('Login Failed', errorData.message || 'Something went wrong');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'There was an error connecting to the server');
+      }
+    };
+    
+    
 
   const handleUsernameChange = (text) => {
     setUsername(text);

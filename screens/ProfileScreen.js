@@ -4,10 +4,11 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = ({ navigation, route }) => {
-  const { user_type, id, instructor } = route.params || {}; // Assuming you get `user_type` and other data from `route.params`
+  const { id } = route.params || {}; // Assuming you get `id` from `route.params`
   
   const [isModalVisible, setIsModalVisible] = useState(false); // State for the logout confirmation modal
   const [storedUserData, setStoredUserData] = useState({});
+  const [userType, setUserType] = useState(''); // State to hold user type (role)
 
   // Function to handle logout
   const handleLogout = () => {
@@ -32,11 +33,14 @@ const ProfileScreen = ({ navigation, route }) => {
     setIsModalVisible(false);
   };
 
-  // Fetch user data from the API
+  // Fetch user data from AsyncStorage and API
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
+        const username = await AsyncStorage.getItem('userName');
+        const userTypeFromStorage = await AsyncStorage.getItem('user_type'); // Fetching the user type (role)
+        
         if (token) {
           const response = await axios.get('http://52.62.183.28/api/accounts/', {
             headers: {
@@ -44,13 +48,13 @@ const ProfileScreen = ({ navigation, route }) => {
             },
           });
           const userData = response.data;
+
           setStoredUserData({
-            username: userData.username || 'N/A',
-            idNumber: userData.id_number || 'N/A',
-            contact: userData.mobile_number || 'N/A',
-            instructor: instructor || 'N/A',
-            userType: user_type || 'user',
+            username: username,
+            userType: userTypeFromStorage || 'user', // Default to 'user' if no type is found
           });
+          setUserType(userTypeFromStorage);
+
           // Store user data in AsyncStorage
           await AsyncStorage.setItem('userProfile', JSON.stringify(userData));
         } else {
@@ -62,9 +66,7 @@ const ProfileScreen = ({ navigation, route }) => {
     };
 
     fetchUserData();
-  }, [user_type, id, instructor]);
-
-
+  }, [id]);
 
   return (
     <View style={styles.container}>
@@ -87,21 +89,14 @@ const ProfileScreen = ({ navigation, route }) => {
         </View>
 
         <View style={styles.infoContainer}>
-          <Text style={styles.infoLabel}>ID Number</Text>
+          <Text style={styles.infoLabel}>Role</Text>
           <View style={styles.infoBox}>
-            <Text style={styles.infoText}>{storedUserData.idNumber || 'N/A'}</Text>
-          </View>
-        </View>
-
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoLabel}>Contact</Text>
-          <View style={styles.infoBox}>
-            <Text style={styles.infoText}>{storedUserData.contact || 'N/A'}</Text>
+            <Text style={styles.infoText}>{userType || 'N/A'}</Text>
           </View>
         </View>
 
         {/* Show instructor info if user_type is 'instructor' */}
-        {storedUserData.userType === 'instructor' && (
+        {userType === 'instructor' && (
           <View style={styles.infoContainer}>
             <Text style={styles.infoLabel}>Instructor</Text>
             <View style={styles.infoBox}>
@@ -109,8 +104,6 @@ const ProfileScreen = ({ navigation, route }) => {
             </View>
           </View>
         )}
-
-        
       </View>
 
       {/* Logout Button */}

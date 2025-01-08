@@ -10,27 +10,8 @@ const ShopScreen = () => {
   const navigation = useNavigation(); // Initialize the navigation hook
   const [loading, setLoading] = useState(false);
 
-  // Calculate the total price for all items in the cart
-  const calculateTotalPrice = () => {
-    return cart.reduce((sum, item) => {
-      if (!item || !item.price) return sum;
-      const price = parseFloat(item.price.replace('$', '')) || 0; // Fallback to 0 if price is invalid
-      return sum + price * (item.quantity || 1); // Fallback to 1 for quantity
-    }, 0);
-  };
 
-  // Fetch the token from AsyncStorage
-  const getTokenFromStorage = async () => {
-    try {
-      const token = await AsyncStorage.getItem('userToken');
-      return token;
-    } catch (error) {
-      console.error('Error fetching token:', error);
-      return null;
-    }
-  };
 
-// Handle checkout for an individual item
 const handleCheckoutForItem = async (item) => {
   if (!item || !item.id) {
     console.error('Invalid item:', item);
@@ -57,11 +38,8 @@ const handleCheckoutForItem = async (item) => {
     });
     console.log('Order created successfully:', response.data);
 
-    navigation.navigate('Order', {
-      cartItems: [item],
-    });
+    navigation.navigate('Order');
 
-    updateCartItemStock(item.id, item.quantity);
     removeFromCart(item.id);
   } catch (error) {
     console.error('Error creating order:', error.response?.data || error);
@@ -100,10 +78,7 @@ const handleProceedToCheckout = async () => {
     });
     console.log('Bulk orders created successfully:', response.data);
 
-    navigation.navigate('Order', {
-      cartItems: cart,
-      totalPrice,
-    });
+    navigation.navigate('Order');
 
     cart.forEach((item) => {
       updateCartItemStock(item.id, item.quantity);
@@ -156,11 +131,6 @@ const handleProceedToCheckout = async () => {
         keyExtractor={(item) => (item?.id?.toString() || item?.title || Math.random().toString())}
       />
 
-      <Text style={styles.totalAmount}>
-        Total: ${calculateTotalPrice().toFixed(2)}
-      </Text>
-
-      <Button title="Proceed to Checkout" onPress={handleProceedToCheckout} />
     </View>
   );
 };

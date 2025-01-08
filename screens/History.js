@@ -43,9 +43,9 @@ const History = () => {
         if (response.ok) {
           const data = await response.json();
           
-          // Filter orders by final_status being either "Rejected" or "Dispatch"
+          // Filter orders by final_status being exactly "Rejected" or "Dispatch"
           const filtered = data.filter(
-            order => order.final_status === 'rejected' || order.final_status === 'Dispatch'
+            order => order.final_status === 'rejected' || order.final_status === 'dispatch'
           );
 
           setFilteredOrders(filtered);

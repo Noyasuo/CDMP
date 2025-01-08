@@ -42,7 +42,7 @@ const OrderScreen = () => {
 
         if (response.ok) {
           const data = await response.json();
-          const filteredOrders = data.filter(order => order.final_status === 'approved');
+          const filteredOrders = data.filter(order => order.status === 'approved');
           setApprovedOrders(filteredOrders);
         } else {
           const errorData = await response.json();
