@@ -8,6 +8,12 @@ const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+    // Function to handle password reset
+    const handleResetPassword = () => {
+      // Navigate to Reset Password screen
+      navigation.navigate('ResetPassword');
+    };
+
   const handleLogin = async () => {
     if (!username || !password) {
       Alert.alert('All fields are required!', 'Please fill in all fields to continue.');
@@ -98,15 +104,14 @@ const LoginScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-<<<<<<< HEAD
-=======
 
-      {/* Forgot Password Button */}
-      <TouchableOpacity style={styles.forgotPasswordButton} onPress={() => navigation.navigate('ForgotPassword')}>
-        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-      </TouchableOpacity>
->>>>>>> 2fd77c4b91b029af034df73ff76035d15cfbe261
+      {/* Reset Password Button */}
+              <TouchableOpacity style={styles.resetPasswordButton} onPress={handleResetPassword}>
+                <Text style={styles.buttonText}>Reset Password</Text>
+              </TouchableOpacity>
     </View>
+
+    
   );
 };
 
@@ -157,12 +162,10 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 18,
   },
-  forgotPasswordButton: {
-    marginTop: 10,
-  },
-  forgotPasswordText: {
-    color: '#FFFF00',
+  registerText: {
+    color: '#ffffff',
     fontSize: 16,
+    marginTop: 10,
   },
 });
 

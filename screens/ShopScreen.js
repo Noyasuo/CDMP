@@ -30,110 +30,95 @@ const ShopScreen = () => {
     }
   };
 
-  // Handle checkout for an individual item
-  const handleCheckoutForItem = async (item) => {
-    if (!item || !item.id) {
-      console.error('Invalid item:', item);
-      return;
-    }
+// Handle checkout for an individual item
+const handleCheckoutForItem = async (item) => {
+  if (!item || !item.id) {
+    console.error('Invalid item:', item);
+    return;
+  }
 
-    const token = await AsyncStorage.getItem('userToken');
-    if (!token) {
-      Alert.alert('Error', 'Unable to complete checkout. Please log in.');
-      return;
-    }
+  // Fetch the token from AsyncStorage
+  const token = await AsyncStorage.getItem('userToken');
+  if (!token) {
+    Alert.alert('Error', 'Unable to complete checkout. Please log in.');
+    return;
+  }
 
-    const orderData = {
-      user: { username: "daniel" }, // Replace with actual user data
-      product: [
-        {
-          title: item.title,
-          description: "Product description", // Replace with actual description
-          stock: item.stock, // If applicable
-          category: { name: "Category Name", description: "Category Description" }, // Update as needed
-          barcode: item.barcode || "N/A",
-        },
-      ],
-      quantity: item.quantity,
-      status: 'pending',
-    };
+  const orderData = {
+    product_name: item.title, // Map item.title to product_name
+    quantity: item.quantity,
+    status: 'pending',
+  };
 
-    setLoading(true);
-    try {
-<<<<<<< HEAD
-      const response = await axios.post('http://52.62.183.28/api/orders/', orderData, {
-        headers: { Authorization: `Token ${token}` },
-=======
-      const response = await axios.patch(`http://52.62.183.28/api/order/${item.id}/`, orderData, {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
->>>>>>> 2fd77c4b91b029af034df73ff76035d15cfbe261
-      });
-      console.log('Order created successfully:', response.data);
+  setLoading(true);
+  try {
+    const response = await axios.post('http://52.62.183.28/api/orders/', orderData, {
+      headers: { Authorization: `Token ${token}` }, // Correctly format the Authorization header
+    });
+    console.log('Order created successfully:', response.data);
 
-      navigation.navigate('Order', {
-        cartItems: [item],
-        totalPrice: parseFloat(item.price) * item.quantity,
-      });
+    navigation.navigate('Order', {
+      cartItems: [item],
+      totalPrice: parseFloat(item.price) * item.quantity,
+    });
 
+    updateCartItemStock(item.id, item.quantity);
+    removeFromCart(item.id);
+  } catch (error) {
+    console.error('Error creating order:', error.response?.data || error);
+    Alert.alert('Checkout Failed', 'An error occurred during checkout.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Handle bulk checkout for all items in the cart
+const handleProceedToCheckout = async () => {
+  if (cart.length === 0) {
+    Alert.alert('Your cart is empty!', 'Please add items to your cart before proceeding.');
+    return;
+  }
+
+  const totalPrice = calculateTotalPrice();
+  const token = await AsyncStorage.getItem('userToken');
+
+  if (!token) {
+    console.error('No token found in AsyncStorage');
+    Alert.alert('Error', 'Unable to complete checkout. Please log in.');
+    return;
+  }
+
+  const orderData = cart.map((item) => ({
+    product_name: item.title,
+    quantity: item.quantity,
+    status: 'pending',
+  }));
+
+  setLoading(true);
+  try {
+    const response = await axios.post('http://52.62.183.28/api/orders/', orderData, {
+      headers: { Authorization: `Token ${token}` }, // Correctly format the Authorization header
+    });
+    console.log('Bulk orders created successfully:', response.data);
+
+    navigation.navigate('Order', {
+      cartItems: cart,
+      totalPrice,
+    });
+
+    cart.forEach((item) => {
       updateCartItemStock(item.id, item.quantity);
       removeFromCart(item.id);
-    } catch (error) {
-      console.error('Error creating order:', error.response?.data || error);
-      Alert.alert('Checkout Failed', 'An error occurred during checkout.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    });
+  } catch (error) {
+    console.error('Error creating bulk orders:', error.response?.data || error);
+    Alert.alert('Checkout Failed', 'An error occurred during checkout.');
+  } finally {
+    setLoading(false);
+  }
+};
 
-  // Handle "Proceed to Checkout" for the entire cart
-  const handleProceedToCheckout = async () => {
-    if (cart.length === 0) {
-      Alert.alert('Your cart is empty!', 'Please add items to your cart before proceeding.');
-      return;
-    }
-
-    const totalPrice = calculateTotalPrice();
-    const token = await getTokenFromStorage();
-
-    if (!token) {
-      console.error('No token found in AsyncStorage');
-      Alert.alert('Error', 'Unable to complete checkout. Please log in.');
-      return;
-    }
-
-    const orderData = cart.map((item) => ({
-      itemId: item.id,
-      quantity: item.quantity,
-      title: item.title,
-      totalPrice: parseFloat(item.price || 0) * (item.quantity || 1),
-      status: 'pending',
-    }));
-
-    setLoading(true);
-    try {
-      const response = await axios.post('http://52.62.183.28/api/orders/', orderData, {
-        headers: { Authorization: `Token ${token}` },
-      });
-      console.log('Bulk orders created successfully:', response.data);
-
-      navigation.navigate('Order', {
-        cartItems: cart,
-        totalPrice,
-      });
-
-      cart.forEach((item) => {
-        updateCartItemStock(item.id, item.quantity);
-        removeFromCart(item.id);
-      });
-    } catch (error) {
-      console.error('Error creating bulk orders:', error.response?.data || error);
-      Alert.alert('Checkout Failed', 'An error occurred during checkout.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  
 
   // Render cart items
   const renderItem = ({ item }) => {
