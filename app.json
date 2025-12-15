@@ -1,5 +1,4 @@
-{
-  "expo": {
+{  "expo": {
     "name": "CDMP",
     "slug": "CDMP",
     "version": "1.0.0",
@@ -10,6 +9,9 @@
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "experiments": {
+      "tsconfigPaths": true
     },
     "ios": {
       "supportsTablet": true
