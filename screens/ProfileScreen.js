@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Button } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_URL from '../api';
 
 const ProfileScreen = ({ navigation, route }) => {
   const { id } = route.params || {}; // Assuming you get `id` from `route.params`
@@ -41,22 +42,31 @@ const ProfileScreen = ({ navigation, route }) => {
         const username = await AsyncStorage.getItem('userName');
         const userTypeFromStorage = await AsyncStorage.getItem('user_type'); // Fetching the user type (role)
         
+        // Show what we have in storage immediately
+        setStoredUserData({
+          username: username,
+          userType: userTypeFromStorage || 'user', // Default to 'user' if no type is found
+        });
+        setUserType(userTypeFromStorage);
+
         if (token) {
-          const response = await axios.get('http://52.62.183.28/api/accounts/', {
-            headers: {
-              'Authorization': `Token ${token}`,
-            },
-          });
-          const userData = response.data;
+          try {
+            const response = await axios.get(`${API_URL}/api/accounts/`, {
+              headers: {
+                'Authorization': `Token ${token}`,
+              },
+            });
+            const userData = response.data;
 
-          setStoredUserData({
-            username: username,
-            userType: userTypeFromStorage || 'user', // Default to 'user' if no type is found
-          });
-          setUserType(userTypeFromStorage);
-
-          // Store user data in AsyncStorage
-          await AsyncStorage.setItem('userProfile', JSON.stringify(userData));
+            // Update with fresh data if needed, or stick with current logic
+            // Assuming response contains the user list or object, we keep the storage data for now
+            // as the original logic didn't clearly map response.data to username
+            
+            // Store user data in AsyncStorage
+            await AsyncStorage.setItem('userProfile', JSON.stringify(userData));
+          } catch (apiError) {
+             console.log('API call failed but local data is displayed:', apiError.message);
+          }
         } else {
           console.log('No token found');
         }
