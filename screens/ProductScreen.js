@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useCart } from './CartContext'; // Import the useCart hook
 import AsyncStorage from '@react-native-async-storage/async-storage'; // For storing token
 
-const ProductScreen = ({ navigation }) => {
+const ProductScreen = ({ navigation, searchQuery = '' }) => {
   const [products, setProducts] = useState([]); // State to store fetched products
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -101,7 +101,9 @@ const ProductScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={products}
+        data={products.filter(product => 
+          product.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
         numColumns={3}

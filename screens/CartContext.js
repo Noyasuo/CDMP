@@ -47,8 +47,8 @@ export const CartProvider = ({ children }) => {
 
 
   const updateCartItemStock = async (id, quantity, item) => {
-    // Ensure 'item' and 'productId' are valid before proceeding
-    if (!item || !item.id || !productId) {
+    // Ensure 'item' and 'id' are valid before proceeding
+    if (!item || !item.id || !id) {
       console.error('Invalid item or productId:', item, id);
       return; // Exit if item or productId is invalid
     }

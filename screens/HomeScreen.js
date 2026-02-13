@@ -3,7 +3,7 @@ import { View, TextInput, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ProductScreen from './ProductScreen'; // Import ProductScreen
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState(''); // State for the search query
 
   // Handle change in search input
@@ -25,8 +25,8 @@ const HomeScreen = () => {
         <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
       </View>
 
-      {/* Pass the search query to ProductScreen */}
-      <ProductScreen searchQuery={searchQuery} />
+      {/* Pass the search query and navigation to ProductScreen */}
+      <ProductScreen searchQuery={searchQuery} navigation={navigation} />
     </View>
   );
 };
