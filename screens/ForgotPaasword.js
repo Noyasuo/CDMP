@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_URL from '../api';
 
 const ForgotPassword = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -19,7 +20,7 @@ const ForgotPassword = ({ navigation }) => {
         return;
       }
 
-      const response = await axios.post('http://52.62.183.28/api/forgot-password/', {
+      const response = await axios.post(`${API_URL}/api/forgot-password/`, {
         email: email,
       }, {
         headers: {

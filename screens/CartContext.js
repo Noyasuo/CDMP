@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_URL from '../api';
 
 // Create the CartContext
 const CartContext = createContext();
@@ -84,7 +85,7 @@ export const CartProvider = ({ children }) => {
   
       // Make the API request to update the product
       const response = await axios.put(
-        `http://192.168.5.124:8000/api/products/${id}/`,
+        `${API_URL}/api/products/${id}/`,
         formData,
         {
           headers: {

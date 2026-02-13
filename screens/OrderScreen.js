@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_URL from '../api';
 
 const OrderScreen = () => {
   const [approvedOrders, setApprovedOrders] = useState([]);
@@ -33,7 +34,7 @@ const OrderScreen = () => {
       setError(null);
 
       try {
-        const response = await fetch('http://52.62.183.28/api/orders/', {
+        const response = await fetch(`${API_URL}/api/orders/`, {
           method: 'GET',
           headers: {
             'Authorization': `Token ${userToken}`,

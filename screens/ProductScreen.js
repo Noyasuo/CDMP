@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, Modal, Butto
 import axios from 'axios'; 
 import { useCart } from './CartContext'; // Import the useCart hook
 import AsyncStorage from '@react-native-async-storage/async-storage'; // For storing token
+import API_URL from '../api';
 
 const ProductScreen = ({ navigation, searchQuery = '' }) => {
   const [products, setProducts] = useState([]); // State to store fetched products
@@ -15,7 +16,7 @@ const ProductScreen = ({ navigation, searchQuery = '' }) => {
     AsyncStorage.getItem('userToken').then(token => {
       if (token) {
         // Make API call with the token in Authorization header
-        axios.get('http://52.62.183.28/api/products/', {
+        axios.get(`${API_URL}/api/products/`, {
           headers: {
             Authorization: `Token ${token}`,
           }

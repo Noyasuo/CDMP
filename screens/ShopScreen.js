@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useCart } from './CartContext'; // Import the cart context
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_URL from '../api';
 
 const ShopScreen = () => {
   const { cart, removeFromCart, updateCartItemStock } = useCart();
@@ -33,7 +34,7 @@ const handleCheckoutForItem = async (item) => {
 
   setLoading(true);
   try {
-    const response = await axios.post('http://52.62.183.28/api/orders/', orderData, {
+    const response = await axios.post(`${API_URL}/api/orders/`, orderData, {
       headers: { Authorization: `Token ${token}` }, // Correctly format the Authorization header
     });
     console.log('Order created successfully:', response.data);
@@ -73,7 +74,7 @@ const handleProceedToCheckout = async () => {
 
   setLoading(true);
   try {
-    const response = await axios.post('http://52.62.183.28/api/orders/', orderData, {
+    const response = await axios.post(`${API_URL}/api/orders/`, orderData, {
       headers: { Authorization: `Token ${token}` }, // Correctly format the Authorization header
     });
     console.log('Bulk orders created successfully:', response.data);
