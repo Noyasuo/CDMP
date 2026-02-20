@@ -17,6 +17,10 @@ import ProductScreen from './screens/ProductScreen'; // Import ProductScreen
 import { CartProvider } from './screens/CartContext';
 import ForgotPassword from './screens/ForgotPaasword';
 import History from './screens/History';
+import SupplierHomeScreen from './screens/supplier/SupplierHomeScreen';
+import AddProductScreen from './screens/supplier/AddProductScreen';
+import SupplierProfileScreen from './screens/supplier/SupplierProfileScreen';
+import SupplierStoreScreen from './screens/supplier/SupplierStoreScreen';
 
 // Custom header component
 const Header = () => (
@@ -91,6 +95,51 @@ function MainTabNavigator() {
   );
 }
 
+// Bottom Tab Navigator for Supplier
+function SupplierTabNavigator() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'SupplierHome') {
+            iconName = focused ? 'cube' : 'cube-outline';
+          } else if (route.name === 'SupplierStore') {
+            iconName = focused ? 'storefront' : 'storefront-outline';
+          } else if (route.name === 'SupplierProfile') {
+            iconName = focused ? 'person-circle' : 'person-circle-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#ffffff',
+        tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          backgroundColor: '#004d00',
+        },
+        headerShown: false, // We'll use the screen's own header or hide it
+      })}
+    >
+      <Tab.Screen 
+        name="SupplierHome" 
+        component={SupplierHomeScreen} 
+        options={{ title: 'Products' }}
+      />
+      <Tab.Screen 
+        name="SupplierStore" 
+        component={SupplierStoreScreen} 
+        options={{ title: 'My Store' }}
+      />
+      <Tab.Screen 
+        name="SupplierProfile" 
+        component={SupplierProfileScreen} 
+        options={{ title: 'My Profile' }}
+      />
+    </Tab.Navigator>
+  );
+}
+
 // Stack Navigator containing GetStarted, Login, CreateAccount, Product, and MainTabNavigator
 export default function App() {
   return (
@@ -116,6 +165,16 @@ export default function App() {
           name="Main"
           component={MainTabNavigator}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="SupplierMain"
+          component={SupplierTabNavigator}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AddProduct"
+          component={AddProductScreen}
+          options={{ title: 'Manage Product' }}
         />
         <Stack.Screen
           name="Product"

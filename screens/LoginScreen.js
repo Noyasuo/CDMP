@@ -56,10 +56,17 @@ const LoginScreen = ({ navigation }) => {
           console.log('Saved username:', savedUsername);
           console.log('Saved user type:', savedUserType);
 
-          navigation.navigate('Main', {
-            screen: 'Home',
-            params: { name: username, token: data.token },
-          });
+          if (data.user_type === 'supplier') {
+            navigation.navigate('SupplierMain', {
+              name: username, 
+              token: data.token 
+            });
+          } else {
+            navigation.navigate('Main', {
+              screen: 'Home',
+              params: { name: username, token: data.token },
+            });
+          }
         } else {
           Alert.alert('Login Failed', data.message || 'Invalid response from server');
         }
