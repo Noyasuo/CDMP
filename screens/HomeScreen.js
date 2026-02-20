@@ -1,10 +1,44 @@
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, TextInput, StyleSheet, BackHandler, Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ProductScreen from './ProductScreen'; // Import ProductScreen
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState(''); // State for the search query
+
+  // Handle back button press
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert(
+          'Logout',
+          'Are you sure you want to logout?',
+          [
+            {
+              text: 'Cancel',
+              onPress: () => null,
+              style: 'cancel',
+            },
+            {
+              text: 'Yes',
+              onPress: async () => {
+                await AsyncStorage.removeItem('userToken');
+                navigation.navigate('Login');
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+        return true; // Prevent default behavior
+      };
+
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => backHandler.remove();
+    }, [navigation])
+  );
 
   // Handle change in search input
   const handleSearchChange = (text) => {

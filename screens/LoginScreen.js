@@ -31,8 +31,17 @@ const LoginScreen = ({ navigation }) => {
         }),
       });
 
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (error) {
+        console.error('JSON Parse error:', error, 'Response text:', responseText);
+        Alert.alert('Login Error', 'Invalid server response');
+        return;
+      }
+
       if (response.status === 200) {
-        const data = await response.json();
         console.log('Login response:', data);
 
         if (data.token) {
@@ -55,8 +64,7 @@ const LoginScreen = ({ navigation }) => {
           Alert.alert('Login Failed', data.message || 'Invalid response from server');
         }
       } else {
-        const errorData = await response.json();
-        Alert.alert('Login Failed', errorData.message || 'Authentication failed');
+        Alert.alert('Login Failed', data.message || 'Authentication failed');
       }
     } catch (error) {
       console.error('Login error:', error);
